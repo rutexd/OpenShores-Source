@@ -32,6 +32,7 @@ endif
 
 include mk/native.mk
 include mk/macos.mk
+include mk/windows-native.mk
 include mk/build.mk
 include mk/windows.mk
 include mk/assets.mk

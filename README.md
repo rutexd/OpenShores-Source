@@ -20,7 +20,9 @@ Original project notes: [README-legacy.md](README-legacy.md).
 
 Docker Desktop can be used on Windows.
 
-## Installing WSL and Docker on Windows
+## Windows
+
+### WSL and Docker
 
 Open PowerShell as Administrator and install WSL:
 
@@ -42,6 +44,44 @@ docker run --rm hello-world
 
 For Linux development, keep the repository under `~/src/OpenShores` in WSL for better filesystem performance. For native Windows F5 debugging, open a Windows checkout such as `C:\src\OpenShores` in Windows VS Code.
 
+### Native (MSYS2)
+
+Native Windows builds use MSYS2 UCRT64 and do not invoke Docker or WSL. Install MSYS2, open its UCRT64 terminal, and run:
+
+```bash
+pacman -S --needed \
+  mingw-w64-ucrt-x86_64-gcc \
+  mingw-w64-ucrt-x86_64-cmake \
+  mingw-w64-ucrt-x86_64-ninja \
+  mingw-w64-ucrt-x86_64-make \
+  mingw-w64-ucrt-x86_64-qt5 \
+  mingw-w64-ucrt-x86_64-SDL2 \
+  mingw-w64-ucrt-x86_64-openal
+```
+
+Then build all clients (might take some time)
+
+```bash
+make win-native CONFIG=release
+```
+
+Or build only the client only.
+
+```bash
+make win-native-client CONFIG=release
+```
+
+`CONFIG` accepts the same `debug`, `release` (default), and `relwithdebinfo` values. The native build configures CMake, generates runtime audio assets, builds the requested Windows client(s), and deploys Qt/SDL/OpenAL runtime files automatically.
+
+- Native intermediates and binaries: `build/native-windows-<config>/`
+- Executables: `build/native-windows-<config>/bin/AuSceneClient.exe`, and for the full client build also `AuMailClient.exe`, `AuChatClient.exe`, and `AuLauncher.exe`
+
+If MSYS2 is installed in a nonstandard location, run from that installation's UCRT64 shell or pass `WINDOWS_NATIVE_PREFIX`:
+
+```bash
+make win-native CONFIG=release WINDOWS_NATIVE_PREFIX=D:/msys64/ucrt64
+```
+
 ## Build
 
 ```bash
@@ -51,8 +91,10 @@ make linux           # All Linux programs
 make linux-client    # Linux scene client
 make linux-clients   # All Linux clients
 make linux-servers   # Linux multiplayer servers
-make win             # All Windows clients
-make win-client      # Windows x64 scene client
+make win             # All Windows clients (Docker)
+make win-client      # Windows x64 scene client (Docker)
+make win-native      # All Windows clients (native MSYS2)
+make win-native-client # Windows x64 client (native MSYS2)
 ```
 
 Use `make help FULL=1` to include advanced commands and options.
@@ -132,4 +174,3 @@ make server-down
 ```
 
 See [the server guide](deploy/server/README.md) for configuration and deployment details.
-

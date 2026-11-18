@@ -14,7 +14,8 @@ help:
 		'  make linux-client         Build the Linux scene client' \
 		'  make linux-clients        Build all Linux clients' \
 		'  make linux-servers        Build all Linux servers' \
-		'  make win                  Build all Windows clients' \
+		'  make win                  Build all Windows clients (Docker)' \
+'  make win-native           Build all Windows clients natively (MSYS2)' \
 		'  make win-client           Build the Windows scene client' \
 		'  make mac-client           Build and package the native Mac client' \
 		'  make mac-package          Package an existing native Mac build' \

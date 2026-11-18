@@ -38,6 +38,31 @@ endif()
 
 if(WIN32)
     enable_language(RC)
+    # MinGW's newer Windows SDK defines a global HANDEDNESS type in winuser.h
+    # (Win10 RS4+). Keep the target at RS3 so AuDef::HANDEDNESS stays unambiguous
+    # without renaming the enum throughout the codebase.
+    add_compile_definitions(NTDDI_VERSION=0x0A000004)
+
+    # Detect an MSYS2/MinGW environment and use its prefix automatically when the
+    # caller did not provide CMAKE_PREFIX_PATH.
+    if(DEFINED ENV{MSYSTEM} AND DEFINED ENV{MINGW_PREFIX})
+        message(STATUS "MSYS2 environment detected: $ENV{MSYSTEM}")
+        if(NOT CMAKE_PREFIX_PATH)
+            find_program(_CYGPATH_EXECUTABLE NAMES cygpath)
+            if(_CYGPATH_EXECUTABLE)
+                execute_process(
+                    COMMAND "${_CYGPATH_EXECUTABLE}" -m "$ENV{MINGW_PREFIX}"
+                    OUTPUT_VARIABLE _MSYS_PREFIX
+                    OUTPUT_STRIP_TRAILING_WHITESPACE
+                    RESULT_VARIABLE _CYGPATH_RESULT
+                )
+                if(_CYGPATH_RESULT EQUAL 0 AND _MSYS_PREFIX)
+                    list(PREPEND CMAKE_PREFIX_PATH "${_MSYS_PREFIX}")
+                    message(STATUS "Using MSYS2 prefix: ${_MSYS_PREFIX}")
+                endif()
+            endif()
+        endif()
+    endif()
 endif()
 
 set(AU_OPENGL_VERSION "32" CACHE STRING "OpenGL shader version: 32, 33, or 41")
